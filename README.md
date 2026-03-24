@@ -117,6 +117,37 @@ It is inspired by competitive puzzle games like Krypto and Wordle, with a focus 
 
 ---
 
+## 🎮 App Features
+
+- Daily puzzle mode with the same puzzle for all players each day  
+- Unlimited play mode for continuous gameplay  
+- Arithmetic expression validation using +, -, *, /  
+- Difficulty labeling based on the number of valid solutions  
+- Show Solution feature for puzzle assistance  
+
+---
+
+## 📁 Project Structure
+
+- `solver.ipynb` – notebook for solver development and analysis  
+- `app.py` – Streamlit app for interactive gameplay  
+- `README.md` – project overview and instructions  
+- `requirements.txt` – project dependencies  
+
+---
+
+## ▶️ Running the App
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+
+Run the app:
+streamlit run app.py
+
+---
+
 ## 📌 Author  
 
 Lily Kinney  
