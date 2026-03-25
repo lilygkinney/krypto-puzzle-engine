@@ -148,6 +148,12 @@ streamlit run app.py
 
 ---
 
+## Live App
+
+Play here: https://krypto-puzzle-engine-024.streamlit.app/
+
+---
+
 ## 📌 Author  
 
 Lily Kinney  
