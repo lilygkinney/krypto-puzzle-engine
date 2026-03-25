@@ -74,32 +74,49 @@ def generate_random_puzzle():
     target = random.randint(1, 30)
     return numbers, target
 
-def generate_puzzle_by_difficulty(desired_level, max_tries=200):
+def generate_puzzle_by_difficulty(desired_level, max_tries=25):
+    fallback = None
+
     for _ in range(max_tries):
         numbers = random.sample(range(1, 31), 5)
         target = random.randint(1, 30)
         solutions = solve_krypto(numbers, target)
         difficulty = classify_difficulty(len(solutions))
 
-        if difficulty == desired_level:
+        if len(solutions) > 0 and difficulty == desired_level:
             return numbers, target
 
-    return numbers, target
+        if len(solutions) > 0:
+            fallback = (numbers, target)
+
+    if fallback is not None:
+        return fallback
+
+    return [4, 7, 11, 18, 23], 15
+
 
 def get_daily_puzzle():
     today = datetime.now(ZoneInfo("America/New_York")).strftime("%Y-%m-%d")
     rng = random.Random(today)
 
-    for _ in range(200):
+    fallback = None
+
+    for _ in range(25):
         numbers = rng.sample(range(1, 31), 5)
         target = rng.randint(1, 30)
         solutions = solve_krypto(numbers, target)
         difficulty = classify_difficulty(len(solutions))
 
-        if difficulty in ["Medium", "Hard"]:
+        if len(solutions) > 0 and difficulty in ["Medium", "Hard"]:
             return numbers, target
 
-    return numbers, target
+        if len(solutions) > 0:
+            fallback = (numbers, target)
+
+    if fallback is not None:
+        return fallback
+
+    return [4, 7, 11, 18, 23], 15
 
 # streamlit app
 
@@ -109,7 +126,7 @@ st.caption("Use all 5 numbers exactly once with +, -, *, / to solve the equation
 mode = st.radio("Choose a mode:", ["Daily Puzzle", "Unlimited Play"])
 
 if mode == "Unlimited Play":
-    level = st.selectbox("Choose a level:", ["Easy", "Medium", "Hard", "Expert"])
+    level = st.selectbox("Choose a level:", ["Easy", "Medium", "Hard"])
 else:
     level = None
 
@@ -169,6 +186,6 @@ if st.session_state.show_solution:
 
 if mode == "Unlimited Play":
     if st.button("Next Puzzle"):
-        st.session_state.unlimited_puzzle = generate_puzzle_by_difficulty()
+        st.session_state.unlimited_puzzle = generate_puzzle_by_difficulty(level)
         st.session_state.show_solution = False
         st.rerun()
