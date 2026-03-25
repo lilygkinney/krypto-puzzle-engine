@@ -96,11 +96,11 @@ else:
     numbers, target = st.session_state.unlimited_puzzle
     st.subheader("Unlimited Play")
 
-st.write(f"**Numbers:** {', '.join(map(str, numbers))}")
-st.write(f"**Target:** {target}")
-
 solutions = solve_krypto(numbers, target)
 difficulty = classify_difficulty(len(solutions))
+
+st.write(f"**Numbers:** {numbers}")
+st.write(f"**Target:** {target}")
 st.write(f"**Difficulty:** {difficulty}")
 
 user_input = st.text_input("Enter your expression:")
@@ -115,12 +115,17 @@ if st.button("Check Answer"):
         if result is None:
             st.error("Invalid expression.")
         elif abs(result - target) < 1e-6:
-            st.success("🎉 Correct! You solved it!")
+            st.success(f"🎉 Correct! You solved it!")
             st.balloons()
         else:
             st.error(f"Not quite — your expression evaluates to {result}.")
 
+if "show_solution" not in st.session_state:
+    st.session_state.show_solution = False
+
 if st.button("Show Solution"):
+    st.session_state.show_solution = True
+if st.session_state.show_solution:
     if solutions:
         st.write("Example solution:", solutions[0])
     else:
