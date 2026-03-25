@@ -1,7 +1,9 @@
 import streamlit as st
 import random
 import re
-from datetime import date
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 
 st.set_page_config(page_title="Krypto", page_icon="🧠")
 
@@ -72,30 +74,63 @@ def generate_random_puzzle():
     target = random.randint(1, 30)
     return numbers, target
 
+def generate_puzzle_by_difficulty(desired_level, max_tries=200):
+    for _ in range(max_tries):
+        numbers = random.sample(range(1, 31), 5)
+        target = random.randint(1, 30)
+        solutions = solve_krypto(numbers, target)
+        difficulty = classify_difficulty(len(solutions))
+
+        if difficulty == desired_level:
+            return numbers, target
+
+    return numbers, target
+
 def get_daily_puzzle():
-    today = date.today().isoformat()
-    rng = random.Random(today)  # same puzzle for everyone each day
-    numbers = rng.sample(range(1, 31), 5)
-    target = rng.randint(1, 30)
+    today = datetime.now(ZoneInfo("America/New_York")).strftime("%Y-%m-%d")
+    rng = random.Random(today)
+
+    for _ in range(200):
+        numbers = rng.sample(range(1, 31), 5)
+        target = rng.randint(1, 30)
+        solutions = solve_krypto(numbers, target)
+        difficulty = classify_difficulty(len(solutions))
+
+        if difficulty in ["Medium", "Hard"]:
+            return numbers, target
+
     return numbers, target
 
 # streamlit app
 
 st.title("🧠 Krypto")
-st.caption("Use all 5 numbers exactly once with +, -, *, / to reach the target.")
+st.caption("Use all 5 numbers exactly once with +, -, *, / to solve the equation.")
 
 mode = st.radio("Choose a mode:", ["Daily Puzzle", "Unlimited Play"])
+
+if mode == "Unlimited Play":
+    level = st.selectbox("Choose a level:", ["Easy", "Medium", "Hard", "Expert"])
+else:
+    level = None
 
 if "show_solution" not in st.session_state:
     st.session_state.show_solution = False
 
 if "unlimited_puzzle" not in st.session_state:
-    st.session_state.unlimited_puzzle = generate_random_puzzle()
+    st.session_state.unlimited_puzzle = generate_puzzle_by_difficulty("Easy")
+
+if "current_level" not in st.session_state:
+    st.session_state.current_level = "Easy"
 
 if mode == "Daily Puzzle":
     numbers, target = get_daily_puzzle()
     st.subheader("Daily Puzzle")
 else:
+    if st.session_state.current_level != level:
+        st.session_state.current_level = level
+        st.session_state.unlimited_puzzle = generate_puzzle_by_difficulty(level)
+        st.session_state.show_solution = False
+
     numbers, target = st.session_state.unlimited_puzzle
     st.subheader("Unlimited Play")
 
@@ -134,6 +169,6 @@ if st.session_state.show_solution:
 
 if mode == "Unlimited Play":
     if st.button("Next Puzzle"):
-        st.session_state.unlimited_puzzle = generate_random_puzzle()
+        st.session_state.unlimited_puzzle = generate_puzzle_by_difficulty()
         st.session_state.show_solution = False
         st.rerun()
