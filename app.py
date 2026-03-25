@@ -86,6 +86,9 @@ st.caption("Use all 5 numbers exactly once with +, -, *, / to reach the target."
 
 mode = st.radio("Choose a mode:", ["Daily Puzzle", "Unlimited Play"])
 
+if "show_solution" not in st.session_state:
+    st.session_state.show_solution = False
+
 if "unlimited_puzzle" not in st.session_state:
     st.session_state.unlimited_puzzle = generate_random_puzzle()
 
@@ -120,8 +123,6 @@ if st.button("Check Answer"):
         else:
             st.error(f"Not quite — your expression evaluates to {result}.")
 
-if "show_solution" not in st.session_state:
-    st.session_state.show_solution = False
 
 if st.button("Show Solution"):
     st.session_state.show_solution = True
@@ -134,4 +135,5 @@ if st.session_state.show_solution:
 if mode == "Unlimited Play":
     if st.button("Next Puzzle"):
         st.session_state.unlimited_puzzle = generate_random_puzzle()
+        st.session_state.show_solution = False
         st.rerun()
